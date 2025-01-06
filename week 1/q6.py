@@ -1,9 +1,9 @@
 import torch
 
-tensor1=torch.randn(1,3,5)
-tensor2=torch.randn(1,7)
+tensor1=torch.randint(0,10,(7,7))
+tensor2=torch.randint(0,10,(1,7))
 
-tensor2_reshaped=tensor2.view(1,7,1)
+tensor2_reshaped=tensor2.transpose(0,1)
 
 result=torch.matmul(tensor1,tensor2_reshaped)
 print(result.shape)
