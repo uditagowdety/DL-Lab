@@ -1,74 +1,57 @@
-from pyexpat import features
-
-import torch.nn as nn
 import torch
-import matplotlib.pyplot as plt
-from torch.nn import Sequential
+import torch.nn as nn
+import torch.optim as optim
 import torchvision.datasets as datasets
-from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
-from torch.xpu import device
+from torch.utils.data import DataLoader
 
-transform=transforms.Compose([transforms.ToTensor()])
 
-mnist_train = datasets.MNIST(root='./data', train=True, download=True, transform=transform)
-mnist_test = datasets.MNIST(root='./data', train=False, download=True, transform=transform)
-
-print("Type is = ", type(mnist_train))
-print("Train Dataset size = ", len(mnist_train))
-
-batch_size = 1
-
-train_loader = DataLoader(mnist_train, batch_size=batch_size, shuffle=True)
-test_loader = DataLoader(mnist_test, batch_size=batch_size)
-
+# Define the CNN model
 class CNNClassifier(nn.Module):
     def __init__(self):
-        super().__init__()
-        self.net = nn.Sequential(
-            nn.Conv2d(1, 64, kernel_size=3),  # Correct Conv2d layer
-            nn.ReLU(),
-            nn.MaxPool2d((2, 2), stride=2),
-            nn.Conv2d(64, 128, kernel_size=3),
-            nn.ReLU(),
-            nn.MaxPool2d((2, 2), stride=2),
-            nn.Conv2d(128, 64, kernel_size=3),
-            nn.ReLU(),
-            nn.MaxPool2d((2, 2), stride=2)
-        )
+        super(CNNClassifier, self).__init__()
+        # Define the layers
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)  # Conv layer
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)  # Conv layer
+        self.pool = nn.MaxPool2d(2, 2)  # MaxPooling layer
+        self.fc1 = nn.Linear(64 * 7 * 7, 128)  # Fully connected layer
+        self.fc2 = nn.Linear(128, 10)  # Output layer for 10 classes
 
-        # The number of input features to the fully connected layer should depend on the output of the last Conv2D layer.
-        # Assuming the input image is 28x28, after 3 MaxPool layers, the output size is 3x3.
-        self.classification_head = nn.Sequential(
-            nn.Linear(64 * 3 * 3, 20),  # 64 channels, 3x3 feature map (after 3 pooling layers)
-            nn.ReLU(),
-            nn.Linear(20, 10)  # 10 output classes (digits 0-9)
-        )
-
-    def forward(self,x):
-        features=self.net(x)
-        return self.classification_head(features.view(batch_size,-1))
+    def forward(self, x):
+        x = self.pool(torch.relu(self.conv1(x)))  # First convolution + relu + pooling
+        x = self.pool(torch.relu(self.conv2(x)))  # Second convolution + relu + pooling
+        x = x.view(-1, 64 * 7 * 7)  # Flatten the output from the conv layers
+        x = torch.relu(self.fc1(x))  # Fully connected layer with ReLU
+        x = self.fc2(x)  # Output layer
+        return x
 
 
-device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# Load the MNIST dataset
+transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))])
+train_dataset = datasets.MNIST(root='./data', train=True, download=True, transform=transform)
+test_dataset = datasets.MNIST(root='./data', train=False, download=True, transform=transform)
 
-model=CNNClassifier().to(device)
-criterion=nn.CrossEntropyLoss()
-optim=torch.optim.SGD(model.parameters(),lr=0.001)
+train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
+test_loader = DataLoader(test_dataset, batch_size=64, shuffle=False)
 
-def train_one_epoch(epoch_idx):
+# Initialize the model, loss function, and optimizer
+model = CNNClassifier()
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.SGD(model.parameters(), lr=0.001)
+
+epochs=10
+# Training loop
+for epoch in range(epochs):  # Run for 5 epochs
+    model.train()
     total_loss = 0
     total_correct = 0
     total_samples = 0
-    for i, data in enumerate(train_loader):
-        inputs, labels = data
-        inputs,labels=inputs.to(device),labels.to(device)
-        optim.zero_grad()
-        outputs = model(inputs)
-
-        loss = criterion(outputs, labels)
-        loss.backward()
-        optim.step()
+    for inputs, labels in train_loader:
+        optimizer.zero_grad()  # Clear the gradients
+        outputs = model(inputs)  # Forward pass
+        loss = criterion(outputs, labels)  # Compute the loss
+        loss.backward()  # Backpropagation
+        optimizer.step()  # Update weights
 
         total_loss += loss.item()
         _, predicted = torch.max(outputs, 1)
@@ -76,19 +59,18 @@ def train_one_epoch(epoch_idx):
         total_samples += labels.size(0)
 
     accuracy = (total_correct / total_samples) * 100
-    return total_loss / len(train_loader), accuracy
+    print(f'Epoch [{epoch + 1}/{epochs}], Loss: {total_loss / len(train_loader):.4f}, Accuracy: {accuracy:.2f}%')
 
+# Evaluate the model on the test set
+model.eval()
+total_correct = 0
+total_samples = 0
+with torch.no_grad():  # Disable gradient computation for evaluation
+    for inputs, labels in test_loader:
+        outputs = model(inputs)
+        _, predicted = torch.max(outputs, 1)
+        total_correct += (predicted == labels).sum().item()
+        total_samples += labels.size(0)
 
-epochs = 15
-loss_values = []
-print("Initializing training on dev = ", device)
-for epoch in range(epochs):
-    avg_loss, accuracy = train_one_epoch(epoch)
-    loss_values.append(avg_loss)
-    print(f"Epoch {epoch + 1}/{epochs}, Loss: {avg_loss:.4f}, Accuracy: {accuracy:.2f}%")
-
-plt.plot(loss_values)
-plt.grid()
-plt.xlabel("Epochs")
-plt.ylabel("Loss")
-plt.show()
+accuracy = (total_correct / total_samples) * 100
+print(f'Test Accuracy: {accuracy:.2f}%')
