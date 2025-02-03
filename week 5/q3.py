@@ -39,7 +39,7 @@ model = CNNClassifier()
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(), lr=0.001)
 
-epochs=10
+epochs=5
 # Training loop
 for epoch in range(epochs):  # Run for 5 epochs
     model.train()
@@ -74,3 +74,12 @@ with torch.no_grad():  # Disable gradient computation for evaluation
 
 accuracy = (total_correct / total_samples) * 100
 print(f'Test Accuracy: {accuracy:.2f}%')
+
+print("\n CNN model parameters:\n")
+# Assuming model is your CNNClassifier instance
+for name, param in model.named_parameters():
+    print(f"Parameter name: {name}, Shape: {param.shape}")
+
+# To calculate the total number of learnable parameters
+total_params = sum(p.numel() for p in model.parameters())
+print(f"\nTotal learnable parameters: {total_params}")
