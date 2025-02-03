@@ -75,7 +75,7 @@ with torch.no_grad():  # Disable gradient computation for evaluation
 accuracy = (total_correct / total_samples) * 100
 print(f'Test Accuracy: {accuracy:.2f}%')
 
-print("\n CNN model parameters:\n")
+print("\nCNN model parameters:")
 # Assuming model is your CNNClassifier instance
 for name, param in model.named_parameters():
     print(f"Parameter name: {name}, Shape: {param.shape}")
