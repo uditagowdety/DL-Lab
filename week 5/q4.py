@@ -91,11 +91,11 @@ print(f'Test Accuracy: {test_accuracy:.2f}%')
 initial_params = sum(p.numel() for p in CNNClassifier().parameters())
 param_drop_percentage = [(initial_params - count) / initial_params * 100 for count in param_count]
 
-plt.plot(param_drop_percentage, accuracy_values)
-plt.xlabel("Percentage Drop in Parameters")
-plt.ylabel("Accuracy (%)")
-plt.title("Percentage Drop in Parameters vs Accuracy")
-plt.grid(True)
-plt.show()
-
-print(f"\nTotal learnable parameters (after reduction): {total_params}")
+# plt.plot(param_drop_percentage, accuracy_values)
+# plt.xlabel("Percentage Drop in Parameters")
+# plt.ylabel("Accuracy (%)")
+# plt.title("Percentage Drop in Parameters vs Accuracy")
+# plt.grid(True)
+# plt.show()
+#
+# print(f"\nTotal learnable parameters (after reduction): {total_params}")
