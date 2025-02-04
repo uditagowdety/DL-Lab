@@ -22,7 +22,7 @@ class XORModel(nn.Module):
         # self.linear2=nn.Linear(2,1,bias=True)
         self.model=nn.Sequential(
             nn.Linear(2,2),
-            nn.Sigmoid(),
+            nn.ReLU(),
             nn.Linear(2,1)
         )
         
@@ -74,7 +74,7 @@ def train_one_epoch(epoch):
     return total_loss/len(train_data_loader)*batch_size
 
 
-epochs=10000
+epochs=1000
 
 for epoch in range(epochs):
     model.train(True)
