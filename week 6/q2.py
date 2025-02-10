@@ -17,6 +17,7 @@ optimizer=torch.optim.SGD(model.parameters(),lr=0.001)
 # Prepare Data:
 #     Load cats & dogs dataset (train/val).
 #     Preprocess: resize images to 224x224, normalize, and apply data augmentation (flip, crop).
+#    how do i resize my images? also, how do i load two different directories of images into train datset?
 #
 # Load Pre-trained AlexNet:
 #     Use AlexNet pretrained on ImageNet.
