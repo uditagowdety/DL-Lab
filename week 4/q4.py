@@ -88,7 +88,7 @@ def train_one_epoch(epoch):
     return total_loss/len(train_data_loader)*batch_size
 
 
-epochs=1000
+epochs=100
 
 for epoch in range(epochs):
     model.train(True)
