@@ -49,7 +49,7 @@ model.load_state_dict(torch.load("./model_state_dict.pth"))
 # model.fc=nn.Linear(model.fc.in_features,10)
 
 for param in model.parameters():
-    param.requires_grad=True
+    param.requires_grad=False
 
 for param in model.fc3.parameters():
     param.requires_grad=True
