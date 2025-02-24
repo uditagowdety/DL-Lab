@@ -49,20 +49,20 @@ def train_es(model,train_loader, val_loader,criterion,optimizer,epochs, patience
 
             epoch_loss+=loss.item()
 
-            model.eval()
-            val_loss=0.0
-            total_correct=0
-            total_samples=0
+        model.eval()
+        val_loss=0.0
+        total_correct=0
+        total_samples=0
 
-            with torch.no_grad():
-                for images, labels in val_loader:
-                    outputs=model(images)
-                    loss=criterion(outputs,labels)
-                    val_loss+=loss.item()
+        with torch.no_grad():
+            for images, labels in val_loader:
+                outputs=model(images)
+                loss=criterion(outputs,labels)
+                val_loss+=loss.item()
 
-                    _, predicted = torch.max(outputs, 1)
-                    total_samples += labels.size(0)
-                    total_correct += (predicted == labels).sum().item()
+                _, predicted = torch.max(outputs, 1)
+                total_samples += labels.size(0)
+                total_correct += (predicted == labels).sum().item()
 
         val_loss /= len(val_loader)
         accuracy = 100 * total_correct / total_samples
