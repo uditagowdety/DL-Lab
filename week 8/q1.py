@@ -73,7 +73,7 @@ for epoch in range(epochs):
     if (epoch + 1) % 10 == 0:
         print(f"Epoch [{epoch + 1}/{epochs}], Loss: {loss.item():.6f}")
 
-plt.plot(losses, label="Training Loss")
+plt.plot(loss_list, label="Training Loss")
 plt.xlabel("Epochs")
 plt.ylabel("Loss")
 plt.legend()
