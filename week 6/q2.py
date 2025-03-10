@@ -81,4 +81,4 @@ val_accuracy = 100 * correct / total
 print(f"Validation Accuracy: {val_accuracy:.2f}%")
 
 # Save the fine-tuned model
-torch.save(model.state_dict(), "alexnet_cats_vs_dogs.pth")
+# torch.save(model.state_dict(), "alexnet_cats_vs_dogs.pth")
