@@ -8,6 +8,7 @@ from sklearn.preprocessing import MinMaxScaler
 
 url="https://datahub.io/core/natural-gas/r/daily.csv"
 df=pd.read_csv(url,parse_dates=["Date"])
+df=df.dropna()
 
 df=df.sort_values("Date")
 prices=df["Price"].values.reshape(-1,1)
@@ -58,7 +59,7 @@ class priceRNN(nn.Module):
 model=priceRNN()
 criterion=nn.MSELoss()
 optimiser=optim.Adam(model.parameters(),lr=0.03)
-epochs=10
+epochs=100
 loss_list=[]
 
 for epoch in range(epochs):
@@ -87,10 +88,10 @@ y_pred = scaler.inverse_transform(y_pred.numpy())
 y_test = scaler.inverse_transform(y_test.numpy())
 
 plt.figure(figsize=(12, 6))
-plt.plot(y_test, label="Actual Prices", color="blue")
-plt.plot(y_pred, label="Predicted Prices", color="red", linestyle="dashed")
+plt.plot(y_test, label="actual prices", color="blue")
+plt.plot(y_pred, label="predicted prices", color="red", linestyle="dashed")
 plt.legend()
-plt.xlabel("Days")
-plt.ylabel("Price (USD)")
-plt.title("Natural Gas Price Prediction using RNN")
+plt.xlabel("days")
+plt.ylabel("price (usd)")
+plt.title("price prediction")
 plt.show()
