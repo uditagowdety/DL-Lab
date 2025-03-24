@@ -58,7 +58,7 @@ class priceRNN(nn.Module):
 
 model=priceRNN()
 criterion=nn.MSELoss()
-optimiser=optim.Adam(model.parameters(),lr=0.03)
+optimiser=optim.Adam(model.parameters(),lr=0.01)
 epochs=100
 loss_list=[]
 
